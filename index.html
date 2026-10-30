@@ -58,7 +58,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .col.sel .bars{background:var(--bg);border-radius:6px}
 .legend{display:flex;gap:14px;font-size:13px;color:var(--muted);margin-top:10px}
 .dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
 .seg button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:10px;font:inherit;font-weight:600;cursor:pointer;min-height:44px}
 .seg button[aria-pressed="true"].i{background:var(--inc);border-color:var(--inc);color:#fff}
 .seg button[aria-pressed="true"].e{background:var(--exp);border-color:var(--exp);color:#fff}
@@ -85,6 +85,13 @@ input,select{width:100%}
 .acts .del{background:#C0392B}
 .acts .del.ask{background:#8E1F14}
 .hint{margin:-4px 0 8px}
+.seg button[aria-pressed="true"].p{background:#5B4BC4;border-color:#5B4BC4;color:#fff}
+.amt.p{color:var(--ink)}
+.bk{margin-top:14px;border-top:1px solid var(--line);padding-top:8px;font-size:14px}
+.bk div{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
+.bk span{color:var(--muted)}
+.bk b{white-space:nowrap}
+.tag{font-style:normal;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--muted);vertical-align:middle}
 .cancel{grid-column:1/-1;background:none;border:1px solid var(--line);color:var(--ink);border-radius:10px;font:inherit;min-height:44px;cursor:pointer}
 .item .m{flex:1;min-width:0}
 .item .m b{font-weight:500;display:block}
@@ -153,12 +160,14 @@ input,select{width:100%}
     <div class="seg" role="group" aria-label="ประเภทรายการ">
       <button type="button" class="e" id="tE" aria-pressed="true">รายจ่าย</button>
       <button type="button" class="i" id="tI" aria-pressed="false">รายรับ</button>
+      <button type="button" class="p" id="tP" aria-pressed="false"></button>
     </div>
     <form id="f">
       <div><label for="fd">วันที่</label><input type="date" id="fd" required></div>
       <div><label for="fa">จำนวนเงิน</label><input type="number" id="fa" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" required></div>
       <div class="full"><label for="fcur">สกุลเงิน</label><select id="fcur"></select></div>
       <div class="full" id="rbox" hidden><label for="fr" id="lr"></label><input type="number" id="fr" inputmode="decimal" min="0" step="any"><p class="rm" id="rmsg"></p><p class="rm" id="rprev"></p></div>
+      <div class="full" id="pbox"><label for="fp"></label><select id="fp"><option value="cash"></option><option value="card"></option></select></div>
       <div class="full"><label for="fc">หมวดหมู่</label><select id="fc"></select></div>
       <div class="full"><label for="fn">บันทึกเพิ่มเติม</label><input type="text" id="fn" maxlength="80" placeholder="เช่น ข้าวกลางวัน"></div>
       <button class="save" type="submit">บันทึกรายการ</button>
@@ -174,20 +183,20 @@ input,select{width:100%}
 (function(){
 var MONTHS=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 var SHORT=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-var CATS={e:['อาหาร','เดินทาง','ที่พัก','ช้อปปิ้ง','ค่าน้ำ ค่าไฟ ค่าเน็ต','สุขภาพ','บันเทิง','อื่นๆ'],i:['เงินเดือน','โบนัส','ขายของ/ธุรกิจ','ของขวัญ','อื่นๆ']};
+var CATS={e:['อาหาร','เดินทาง','ที่พัก','ช้อปปิ้ง','ค่าน้ำ ค่าไฟ ค่าเน็ต','สุขภาพ','บันเทิง','อื่นๆ'],i:['เงินเดือน','โบนัส','ขายของ/ธุรกิจ','ของขวัญ','อื่นๆ'],p:['ชำระบัตรเครดิต']};
 var KEY='thai-ledger-v1';
 var LK='thai-ledger-lang',lang='th';
 try{var sl=localStorage.getItem(LK);if(sl==='en'||sl==='th'||sl==='zh')lang=sl;}catch(e){}
 var I={
 th:{title:'บัญชีรายรับรายจ่าย',inc:'รายรับ',exp:'รายจ่าย',add:'เพิ่มรายการ',date:'วันที่',amt:'จำนวนเงิน',cat:'หมวดหมู่',note:'บันทึกเพิ่มเติม',ph:'เช่น ข้าวกลางวัน',save:'บันทึกรายการ',prev:'เดือนก่อนหน้า',next:'เดือนถัดไป',mon:'เดือน',yr:'ปี',ce:'ค.ศ. ',left:'คงเหลือ',chart:'สรุปรายเดือน',total:'รวมทั้งปี',net:'สุทธิ',daily:'สรุปรายวัน',nodata:'ยังไม่มีรายการในเดือนนี้',bycat:'รายจ่ายแยกตามหมวด',noexp:'ยังไม่มีรายจ่ายในเดือนนี้',all:'รายการทั้งหมด',empty:'ยังไม่มีรายการ เพิ่มรายการแรกได้ที่แบบฟอร์มด้านบน',del:'ลบ',sure:'ยืนยันลบ',up:'เลื่อนขึ้น',dn:'เลื่อนลง',thb:'บาท',months:MONTHS,short:SHORT,wd:['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'],cats:{}},
-en:{title:'Income & Expense Tracker',inc:'Income',exp:'Expense',add:'Add entry',date:'Date',amt:'Amount',cat:'Category',note:'Note',ph:'e.g. Lunch',save:'Save entry',prev:'Previous month',next:'Next month',mon:'Month',yr:'Year',ce:'',left:'Balance',chart:'Monthly summary',total:'Year total',net:'Net',daily:'Daily summary',nodata:'No entries this month',bycat:'Expenses by category',noexp:'No expenses this month',all:'All entries',empty:'No entries yet. Add your first one in the form above.',del:'Delete',sure:'Confirm',up:'Scroll up',dn:'Scroll down',thb:'THB',months:['January','February','March','April','May','June','July','August','September','October','November','December'],short:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],cats:{'อาหาร':'Food','เดินทาง':'Transport','ที่พัก':'Housing','ช้อปปิ้ง':'Shopping','ค่าน้ำ ค่าไฟ ค่าเน็ต':'Utilities','สุขภาพ':'Health','บันเทิง':'Entertainment','อื่นๆ':'Other','เงินเดือน':'Salary','โบนัส':'Bonus','ขายของ/ธุรกิจ':'Business','ของขวัญ':'Gift'}},
-zh:{title:'收支记账本',inc:'收入',exp:'支出',add:'添加记录',date:'日期',amt:'金额',cat:'分类',note:'备注',ph:'例如：午餐',save:'保存记录',prev:'上个月',next:'下个月',mon:'月份',yr:'年份',ce:'',left:'结余',chart:'月度汇总',total:'全年合计',net:'净额',daily:'每日汇总',nodata:'本月暂无记录',bycat:'支出分类',noexp:'本月暂无支出',all:'全部记录',empty:'暂无记录，请在上方表单添加第一笔。',del:'删除',sure:'确认删除',up:'向上滚动',dn:'向下滚动',thb:'泰铢',months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],short:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],wd:['周日','周一','周二','周三','周四','周五','周六'],cats:{'อาหาร':'餐饮','เดินทาง':'交通','ที่พัก':'住宿','ช้อปปิ้ง':'购物','ค่าน้ำ ค่าไฟ ค่าเน็ต':'水电网费','สุขภาพ':'医疗健康','บันเทิง':'娱乐','อื่นๆ':'其他','เงินเดือน':'工资','โบนัส':'奖金','ขายของ/ธุรกิจ':'生意收入','ของขวัญ':'礼金'}}
+en:{title:'Income & Expense Tracker',inc:'Income',exp:'Expense',add:'Add entry',date:'Date',amt:'Amount',cat:'Category',note:'Note',ph:'e.g. Lunch',save:'Save entry',prev:'Previous month',next:'Next month',mon:'Month',yr:'Year',ce:'',left:'Balance',chart:'Monthly summary',total:'Year total',net:'Net',daily:'Daily summary',nodata:'No entries this month',bycat:'Expenses by category',noexp:'No expenses this month',all:'All entries',empty:'No entries yet. Add your first one in the form above.',del:'Delete',sure:'Confirm',up:'Scroll up',dn:'Scroll down',thb:'THB',months:['January','February','March','April','May','June','July','August','September','October','November','December'],short:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],cats:{'อาหาร':'Food','เดินทาง':'Transport','ที่พัก':'Housing','ช้อปปิ้ง':'Shopping','ค่าน้ำ ค่าไฟ ค่าเน็ต':'Utilities','สุขภาพ':'Health','บันเทิง':'Entertainment','อื่นๆ':'Other','เงินเดือน':'Salary','โบนัส':'Bonus','ขายของ/ธุรกิจ':'Business','ของขวัญ':'Gift','ชำระบัตรเครดิต':'Credit card payment'}},
+zh:{title:'收支记账本',inc:'收入',exp:'支出',add:'添加记录',date:'日期',amt:'金额',cat:'分类',note:'备注',ph:'例如：午餐',save:'保存记录',prev:'上个月',next:'下个月',mon:'月份',yr:'年份',ce:'',left:'结余',chart:'月度汇总',total:'全年合计',net:'净额',daily:'每日汇总',nodata:'本月暂无记录',bycat:'支出分类',noexp:'本月暂无支出',all:'全部记录',empty:'暂无记录，请在上方表单添加第一笔。',del:'删除',sure:'确认删除',up:'向上滚动',dn:'向下滚动',thb:'泰铢',months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],short:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],wd:['周日','周一','周二','周三','周四','周五','周六'],cats:{'อาหาร':'餐饮','เดินทาง':'交通','ที่พัก':'住宿','ช้อปปิ้ง':'购物','ค่าน้ำ ค่าไฟ ค่าเน็ต':'水电网费','สุขภาพ':'医疗健康','บันเทิง':'娱乐','อื่นๆ':'其他','เงินเดือน':'工资','โบนัส':'奖金','ขายของ/ธุรกิจ':'生意收入','ของขวัญ':'礼金','ชำระบัตรเครดิต':'信用卡还款'}}
 };
 function monY(){return lang==='zh'?Y+'年'+MONTHS[M]:MONTHS[M]+' '+Y}
 function dayTxt(d,m){return lang==='zh'?MONTHS[m]+d+'日':d+' '+MONTHS[m]}
 var CODES=['THB','USD','EUR','CNY','JPY','KRW','HKD','SGD','AUD','MYR','INR','MOP','VND'];
 var CURN={th:{THB:'บาทไทย',USD:'ดอลลาร์สหรัฐ',CNY:'หยวนจีน',JPY:'เยนญี่ปุ่น',KRW:'วอนเกาหลี',HKD:'ดอลลาร์ฮ่องกง',SGD:'ดอลลาร์สิงคโปร์',EUR:'ยูโร',VND:'ดองเวียดนาม',MOP:'ปาตากามาเก๊า',AUD:'ดอลลาร์ออสเตรเลีย',MYR:'ริงกิตมาเลเซีย',INR:'รูปีอินเดีย'},en:{THB:'Thai baht',USD:'US dollar',CNY:'Chinese yuan',JPY:'Japanese yen',KRW:'Korean won',HKD:'Hong Kong dollar',SGD:'Singapore dollar',EUR:'Euro',VND:'Vietnamese dong',MOP:'Macanese pataca',AUD:'Australian dollar',MYR:'Malaysian ringgit',INR:'Indian rupee'},zh:{THB:'泰铢',USD:'美元',CNY:'人民币',JPY:'日元',KRW:'韩元',HKD:'港元',SGD:'新加坡元',EUR:'欧元',VND:'越南盾',MOP:'澳门元',AUD:'澳元',MYR:'马来西亚林吉特',INR:'印度卢比'}};
-var XD={th:{cur:'สกุลเงิน',conv:'ยอดทั้งหมดแปลงเป็นบาทตามอัตราแลกเปลี่ยนของวันที่บันทึก',rate:'อัตราแลกเปลี่ยน (บาท ต่อ 1 {c})',loading:'กำลังดึงอัตราแลกเปลี่ยน...',ok:'อัตราของวันที่ {d} (แก้ไขได้)',fail:'ดึงอัตราอัตโนมัติไม่ได้ กรุณากรอกอัตราเอง',need:'กรุณากรอกอัตราแลกเปลี่ยน',theme:'สลับธีมมืด/สว่าง',edit:'แก้ไข',editT:'แก้ไขรายการ',saveE:'บันทึกการแก้ไข',cancel:'ยกเลิก',hint:'ปัดรายการไปทางซ้ายเพื่อแก้ไขหรือลบ'},en:{cur:'Currency',conv:'All totals are converted to Thai baht at the exchange rate of each entry date',rate:'Exchange rate (THB per 1 {c})',loading:'Fetching exchange rate...',ok:'Rate on {d} (editable)',fail:'Could not fetch the rate. Please enter it manually.',need:'Please enter the exchange rate',theme:'Switch dark / light theme',edit:'Edit',editT:'Edit entry',saveE:'Save changes',cancel:'Cancel',hint:'Swipe an entry left to edit or delete'},zh:{cur:'币种',conv:'所有合计均按记录当日汇率折算为泰铢',rate:'汇率（每 1 {c} 兑泰铢）',loading:'正在获取汇率…',ok:'{d} 的汇率（可修改）',fail:'无法自动获取汇率，请手动输入',need:'请输入汇率',theme:'切换深色/浅色主题',edit:'编辑',editT:'编辑记录',saveE:'保存修改',cancel:'取消',hint:'向左滑动记录可编辑或删除'}};
+var XD={th:{cur:'สกุลเงิน',conv:'ยอดทั้งหมดแปลงเป็นบาทตามอัตราแลกเปลี่ยนของวันที่บันทึก',rate:'อัตราแลกเปลี่ยน (บาท ต่อ 1 {c})',loading:'กำลังดึงอัตราแลกเปลี่ยน...',ok:'อัตราของวันที่ {d} (แก้ไขได้)',fail:'ดึงอัตราอัตโนมัติไม่ได้ กรุณากรอกอัตราเอง',need:'กรุณากรอกอัตราแลกเปลี่ยน',theme:'สลับธีมมืด/สว่าง',edit:'แก้ไข',editT:'แก้ไขรายการ',saveE:'บันทึกการแก้ไข',cancel:'ยกเลิก',hint:'ปัดรายการไปทางซ้ายเพื่อแก้ไขหรือลบ',payc:'ชำระบัตร',payby:'จ่ายด้วย',cash:'เงินสด / โอน',card:'บัตรเครดิต','true':'คงเหลือจริง (หักยอดบัตรค้างชำระ)',cashleft:'เงินสดคงเหลือ (รายรับ − จ่ายเงินสด − ชำระบัตร)',unpaid:'หัก ใช้บัตรเดือนนี้ที่ยังไม่ชำระ',cdebt:'ยอดค้างบัตรสะสม ณ สิ้นเดือน'},en:{cur:'Currency',conv:'All totals are converted to Thai baht at the exchange rate of each entry date',rate:'Exchange rate (THB per 1 {c})',loading:'Fetching exchange rate...',ok:'Rate on {d} (editable)',fail:'Could not fetch the rate. Please enter it manually.',need:'Please enter the exchange rate',theme:'Switch dark / light theme',edit:'Edit',editT:'Edit entry',saveE:'Save changes',cancel:'Cancel',hint:'Swipe an entry left to edit or delete',payc:'Pay card',payby:'Paid by',cash:'Cash / transfer',card:'Credit card','true':'True balance (after unpaid card spending)',cashleft:'Cash left (income − cash spending − card payments)',unpaid:'Less: card spending not yet paid this month',cdebt:'Card balance owed at month end'},zh:{cur:'币种',conv:'所有合计均按记录当日汇率折算为泰铢',rate:'汇率（每 1 {c} 兑泰铢）',loading:'正在获取汇率…',ok:'{d} 的汇率（可修改）',fail:'无法自动获取汇率，请手动输入',need:'请输入汇率',theme:'切换深色/浅色主题',edit:'编辑',editT:'编辑记录',saveE:'保存修改',cancel:'取消',hint:'向左滑动记录可编辑或删除',payc:'还信用卡',payby:'支付方式',cash:'现金/转账',card:'信用卡','true':'实际结余（扣除未还信用卡）',cashleft:'现金结余（收入 − 现金支出 − 还款）',unpaid:'减：本月未还信用卡消费',cdebt:'月底信用卡待还总额'}};
 function XL(k){return XD[lang][k]}
 function L(k){return I[lang][k]}
 function cn(c){return I[lang].cats[c]||c}
@@ -220,7 +229,7 @@ function key(y,m){return y+'-'+pad(m+1)}
 
 function totals(y,m){
   var k=key(y,m),i=0,e=0;
-  tx.forEach(function(t){if(ym(t.date)===k){if(t.type==='i')i+=t.amt;else e+=t.amt;}});
+  tx.forEach(function(t){if(ym(t.date)===k){if(t.type==='i')i+=t.amt;else if(t.type==='e')e+=t.amt;}});
   return {i:i,e:e};
 }
 function fillSelects(){
@@ -234,7 +243,7 @@ function fillSelects(){
 function setCats(){
   $('fc').innerHTML=CATS[type].map(function(c){return '<option value="'+esc(c)+'">'+esc(cn(c))+'</option>'}).join('');
   $('tE').setAttribute('aria-pressed',type==='e');
-  $('tI').setAttribute('aria-pressed',type==='i');
+  $('tI').setAttribute('aria-pressed',type==='i');$('tP').setAttribute('aria-pressed',type==='p');$('pbox').hidden=type!=='e';
 }
 function defaultDate(){
   var d=(Y===now.getFullYear()&&M===now.getMonth())?now.getDate():1;
@@ -243,10 +252,10 @@ function defaultDate(){
 function render(){
   fillSelects();
   var t=totals(Y,M),bal=t.i-t.e;
-  $('sum').innerHTML='<p class="lbl">'+L('left')+' '+monY()+'</p>'+
+  $('sum').innerHTML='<p class="lbl">'+XL('true')+' '+monY()+'</p>'+
     '<p class="bal'+(bal<0?' neg':'')+'">'+(bal<0?'−':'')+'฿'+money(Math.abs(bal))+'</p>'+
     '<div class="two"><div class="pill i"><span>'+L('inc')+'</span><b>฿'+money(t.i)+'</b></div>'+
-    '<div class="pill e"><span>'+L('exp')+'</span><b>฿'+money(t.e)+'</b></div></div><p class="lbl cap">'+XL('conv')+'</p>';
+    '<div class="pill e"><span>'+L('exp')+'</span><b>฿'+money(t.e)+'</b></div></div>'+cardBk(t)+'<p class="lbl cap">'+XL('conv')+'</p>';
   // chart
   $('chartT').textContent=L('chart')+' '+L('ce')+Y;
   var data=[],max=1;
@@ -267,7 +276,7 @@ function render(){
   $('mDn').onclick=function(){ms.scrollBy({top:rh*3,behavior:'smooth'})};
   // daily table
   var WD=I[lang].wd,dk=key(Y,M),dm={};
-  tx.forEach(function(a){if(ym(a.date)===dk){var d=+a.date.slice(8);dm[d]=dm[d]||{i:0,e:0};dm[d][a.type]+=a.amt;}});
+  tx.forEach(function(a){if(ym(a.date)===dk&&a.type!=='p'){var d=+a.date.slice(8);dm[d]=dm[d]||{i:0,e:0};dm[d][a.type]+=a.amt;}});
   var dl=Object.keys(dm).map(Number).sort(function(a,b){return a-b});
   $('dtab').innerHTML='<div class="mh"><h2>'+L('daily')+' '+monY()+'</h2>'+(dl.length>7?arrows('d'):'')+'</div>'+(dl.length?'<div class="wrap mscroll" id="dscroll"><table class="tb"><thead><tr><th>'+L('date')+'</th><th>'+L('inc')+'</th><th>'+L('exp')+'</th><th>'+L('net')+'</th></tr></thead><tbody>'+
     dl.map(function(d){var x=dm[d],n=x.i-x.e;
@@ -287,7 +296,7 @@ function render(){
   if(!items.length)h+='<p class="empty">'+L('empty')+'</p>';
   items.forEach(function(a){
     if(a.date!==last){last=a.date;h+='<div class="day">'+dayTxt(+a.date.slice(8),+a.date.slice(5,7)-1)+'</div>';}
-    h+='<div class="item" tabindex="0" data-id="'+a.id+'"><div class="acts"><button type="button" class="ed" data-id="'+a.id+'">'+XL('edit')+'</button><button type="button" class="del" data-id="'+a.id+'">'+L('del')+'</button></div><div class="row"><div class="m"><b>'+esc(cn(a.cat))+'</b>'+(a.note?'<span>'+esc(a.note)+'</span>':'')+(a.cur&&a.cur!=='THB'?'<span>'+a.cur+' '+money(a.orig)+' × '+a.rate+'</span>':'')+'</div>'+
+    h+='<div class="item" tabindex="0" data-id="'+a.id+'"><div class="acts"><button type="button" class="ed" data-id="'+a.id+'">'+XL('edit')+'</button><button type="button" class="del" data-id="'+a.id+'">'+L('del')+'</button></div><div class="row"><div class="m"><b>'+esc(cn(a.cat))+(a.pay==='card'?' <i class="tag">'+XL('card')+'</i>':'')+'</b>'+(a.note?'<span>'+esc(a.note)+'</span>':'')+(a.cur&&a.cur!=='THB'?'<span>'+a.cur+' '+money(a.orig)+' × '+a.rate+'</span>':'')+'</div>'+
       '<span class="amt '+a.type+'">'+(a.type==='i'?'+':'−')+'฿'+money(a.amt)+'</span>'+
       '</div></div>';
   });
@@ -301,7 +310,7 @@ $('selM').onchange=function(){go(Y,+this.value)};
 $('selY').onchange=function(){go(+this.value,M)};
 $('chart').onclick=function(e){var b=e.target.closest('.col');if(b)go(Y,+b.dataset.m)};
 $('tE').onclick=function(){type='e';setCats()};
-$('tI').onclick=function(){type='i';setCats()};
+$('tI').onclick=function(){type='i';setCats()};$('tP').onclick=function(){type='p';setCats()};
 $('f').onsubmit=function(e){
   e.preventDefault();
   var amt=parseFloat($('fa').value);
@@ -309,7 +318,7 @@ $('f').onsubmit=function(e){
   var d=$('fd').value;
   var cu=$('fcur').value,rt=1;
   if(cu!=='THB'){rt=parseFloat($('fr').value);if(!(rt>0)){$('rmsg').textContent=XL('need');$('fr').focus();return}}
-  var ent={id:editId||Date.now(),date:d,type:type,cat:$('fc').value,amt:cu==='THB'?amt:Math.round(amt*rt*100)/100,note:$('fn').value.trim(),cur:cu,orig:amt,rate:rt};
+  var ent={id:editId||Date.now(),date:d,type:type,cat:$('fc').value,amt:cu==='THB'?amt:Math.round(amt*rt*100)/100,note:$('fn').value.trim(),cur:cu,orig:amt,rate:rt,pay:type==='e'?$('fp').value:''};
   if(editId){tx=tx.map(function(a){return a.id===editId?ent:a})}else tx.push(ent);
   editId=null;formMode();
   save();
@@ -363,6 +372,22 @@ function metaTheme(){var m=document.querySelector('meta[name=theme-color]');if(m
 function setTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem(TK,t)}catch(e){}metaTheme();themeIcon()}
 $('theme').onclick=function(){setTheme(curTheme()==='dark'?'light':'dark')};
 var editId=null,sw=null,lastSw=0,SW=152;
+function sm(n){return (n<0?'−':'')+'฿'+money(Math.abs(n))}
+function cardStats(y,m){
+  var k=key(y,m),r={charge:0,pay:0,cashExp:0,debt:0};
+  tx.forEach(function(t){
+    var tk=ym(t.date);
+    if(t.type==='e'&&t.pay==='card'){if(tk===k)r.charge+=t.amt;if(tk<=k)r.debt+=t.amt}
+    else if(t.type==='e'){if(tk===k)r.cashExp+=t.amt}
+    else if(t.type==='p'){if(tk===k)r.pay+=t.amt;if(tk<=k)r.debt-=t.amt}
+  });
+  return r;
+}
+function cardBk(t){
+  var c=cardStats(Y,M);if(!(c.charge||c.pay||c.debt))return '';
+  var A=t.i-c.cashExp-c.pay,D=c.charge-c.pay;
+  return '<div class="bk"><div><span>'+XL('cashleft')+'</span><b>'+sm(A)+'</b></div><div><span>'+XL('unpaid')+'</span><b>'+sm(-D)+'</b></div><div><span>'+XL('cdebt')+'</span><b>'+sm(c.debt)+'</b></div></div>';
+}
 function formMode(){$('f').parentNode.querySelector('h2').textContent=editId?XL('editT'):L('add');document.querySelector('.save').textContent=editId?XL('saveE'):L('save');var c=$('cx');c.hidden=!editId;c.textContent=XL('cancel')}
 function closeAll(ex){Array.prototype.forEach.call(document.querySelectorAll('.item.open'),function(it){if(it!==ex){it.classList.remove('open');it.querySelector('.row').style.transform=''}})}
 function setOpen(it,o){if(o)closeAll(it);it.classList.toggle('open',o);it.querySelector('.row').style.transform=o?'translateX(-'+SW+'px)':''}
@@ -397,7 +422,7 @@ $('list').addEventListener('click',function(e){
   if(b){
     var a=tx.filter(function(x){return String(x.id)===b.dataset.id})[0];if(!a)return;
     var cu=a.cur||'THB';
-    editId=a.id;type=a.type;setCats();$('fc').value=a.cat;$('fd').value=a.date;
+    editId=a.id;type=a.type;setCats();$('fp').value=a.pay||'cash';$('fc').value=a.cat;$('fd').value=a.date;
     $('fcur').value=cu;$('fa').value=a.orig!=null?a.orig:a.amt;
     rtok++;$('rbox').hidden=cu==='THB';
     if(cu!=='THB'){$('lr').textContent=XL('rate').replace('{c}',cu);$('fr').value=a.rate;$('rmsg').textContent=''}
@@ -421,7 +446,8 @@ function applyLang(){
   $('prev').setAttribute('aria-label',L('prev'));$('next').setAttribute('aria-label',L('next'));
   $('selM').setAttribute('aria-label',L('mon'));$('selY').setAttribute('aria-label',L('yr'));
   formMode();
-  $('tE').textContent=L('exp');$('tI').textContent=L('inc');
+  $('tE').textContent=L('exp');$('tI').textContent=L('inc');$('tP').textContent=XL('payc');
+  document.querySelector('label[for=fp]').textContent=XL('payby');$('fp').options[0].textContent=XL('cash');$('fp').options[1].textContent=XL('card');
   document.querySelector('label[for=fd]').textContent=L('date');
   document.querySelector('label[for=fa]').textContent=L('amt');
   document.querySelector('label[for=fc]').textContent=L('cat');

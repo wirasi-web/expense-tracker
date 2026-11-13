@@ -445,10 +445,10 @@ function renderBills(){
       }
       return '<tr><td>'+fdate(c.st)+'</td><td>'+(c.due?fdate(c.due):'-')+'</td><td class="e">'+money(c.left)+'</td><td class="'+cl+'">'+esc(st)+'</td></tr>';
     }).join('');
-    blocks+='<div class="bh"><b>'+esc(n||XL('card0'))+'</b><b class="e">'+sm(tot)+'</b></div><div class="wrap"><table class="tb"><thead><tr><th>'+XL('bSt')+'</th><th>'+XL('bDue')+'</th><th>'+XL('bAmt')+'</th><th>'+XL('bStat')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    blocks+='<div class="bh"><b>'+esc(n||XL('card0'))+'</b></div><div class="wrap"><table class="tb"><thead><tr><th>'+XL('bSt')+'</th><th>'+XL('bDue')+'</th><th>'+XL('bAmt')+'</th><th>'+XL('bStat')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   });
   var top='';
-  if(over>0.005)top+='<p class="warnline st-over">'+XL('overdueT')+' '+sm(over)+'</p>';
+  if(over>0.005)top+='<p class="warnline st-over">'+XL('overdueT')+'</p>';
   if(next)top+='<p class="warnline">'+XL('nextDue')+': '+esc(next.n||XL('card0'))+' '+sm(next.amt)+' ('+fdate(next.due)+')</p>';
   if(!blocks)blocks='<p class="empty">'+XL('noOwe')+'</p>';
   var cf=cardNames().map(function(n){var c=cfgs[n]||{};
@@ -483,7 +483,7 @@ function listTabs(items){
     var sp=0,pd=0,debt=0,bf=0,k=key(Y,M);
     items.forEach(function(a){if(a.type==='e')sp+=a.amt;else if(a.type==='p')pd+=a.amt});
     tx.forEach(function(t){if(ym(t.date)>k)return;if(lc!=='*'&&(t.card||'')!==lc)return;var sg=t.type==='e'&&t.pay==='card'?1:(t.type==='p'?-1:0);debt+=sg*t.amt;if(ym(t.date)<k)bf+=sg*t.amt});
-    h+='<div class="bk"><div><span>'+XL('cfwd')+'</span><b>'+sm(bf)+'</b></div><div><span>'+XL('cuse')+'</span><b>'+sm(sp)+'</b></div><div><span>'+XL('cpay')+'</span><b>'+sm(pd)+'</b></div><div><span>'+XL('cdebt')+'</span><b>'+sm(debt)+'</b></div></div>';
+    h+='<div class="bk"><div><span>'+XL('cuse')+'</span><b>'+sm(sp)+'</b></div><div><span>'+XL('cpay')+'</span><b>'+sm(pd)+'</b></div></div>';
   }else if(lf==='cash'){
     var inc=0,ex=0;items.forEach(function(a){if(a.type==='i')inc+=a.amt;else if(a.type==='e')ex+=a.amt});
     h+='<div class="bk"><div><span>'+L('inc')+'</span><b>'+sm(inc)+'</b></div><div><span>'+XL('lscash')+'</span><b>'+sm(ex)+'</b></div></div>';
@@ -544,9 +544,9 @@ function cardStats(y,m){
   return r;
 }
 function cardBk(t){
-  var c=cardStats(Y,M);if(!(c.charge||c.pay||c.debt))return '';
+  var c=cardStats(Y,M);if(!(c.charge||c.pay))return '';
   var A=t.i-c.cashExp-c.pay,D=c.charge-c.pay;
-  return '<div class="bk"><div><span>'+XL('cashleft')+'</span><b>'+sm(A)+'</b></div><div><span>'+XL('unpaid')+'</span><b>'+sm(-D)+'</b></div><div class="bs"><span>'+XL('cfwd')+'</span><b>'+sm(c.debt-c.charge+c.pay)+'</b></div><div><span>'+XL('cplus')+'</span><b>'+sm(c.charge)+'</b></div><div><span>'+XL('cminus')+'</span><b>'+sm(-c.pay)+'</b></div><div class="bt"><span>'+XL('cdebt')+'</span><b>'+sm(c.debt)+'</b></div></div>';
+  return '<div class="bk"><div><span>'+XL('cashleft')+'</span><b>'+sm(A)+'</b></div><div><span>'+XL('unpaid')+'</span><b>'+sm(-D)+'</b></div><div class="bs"><span>'+XL('cplus')+'</span><b>'+sm(c.charge)+'</b></div><div><span>'+XL('cminus')+'</span><b>'+sm(-c.pay)+'</b></div></div>';
 }
 function formMode(){$('f').parentNode.querySelector('h2').textContent=editId?XL('editT'):L('add');document.querySelector('.save').textContent=editId?XL('saveE'):L('save');var c=$('cx');c.hidden=!editId;c.textContent=XL('cancel')}
 function closeAll(ex){Array.prototype.forEach.call(document.querySelectorAll('.item.open'),function(it){if(it!==ex){it.classList.remove('open');it.querySelector('.row').style.transform=''}})}

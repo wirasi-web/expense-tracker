@@ -95,6 +95,9 @@ input,select{width:100%}
 .st-soon{color:#B7791F;font-weight:600}
 .st-unb{color:var(--muted)}
 .warnline{margin:0 0 6px;font-size:14px}
+.bk .bs{border-top:1px dashed var(--line);margin-top:6px;padding-top:8px}
+.bk .bt{border-top:1px solid var(--line);margin-top:4px;padding-top:6px;font-weight:600}
+.bk .bt span{color:var(--ink)}
 .cfg{margin-top:12px;border-top:1px solid var(--line);padding-top:8px}
 .cfg summary{cursor:pointer;font-weight:600;min-height:36px;display:flex;align-items:center}
 .cfgrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
@@ -212,7 +215,7 @@ function monY(){return MONTHS[M]+' '+Y}
 function dayTxt(d,m){return d+' '+MONTHS[m]}
 var CODES=['THB','USD','EUR','CNY','JPY','KRW','HKD','SGD','AUD','MYR','INR','MOP','VND'];
 var CURN={th:{THB:'บาทไทย',USD:'ดอลลาร์สหรัฐ',CNY:'หยวนจีน',JPY:'เยนญี่ปุ่น',KRW:'วอนเกาหลี',HKD:'ดอลลาร์ฮ่องกง',SGD:'ดอลลาร์สิงคโปร์',EUR:'ยูโร',VND:'ดองเวียดนาม',MOP:'ปาตากามาเก๊า',AUD:'ดอลลาร์ออสเตรเลีย',MYR:'ริงกิตมาเลเซีย',INR:'รูปีอินเดีย'},en:{THB:'Thai baht',USD:'US dollar',CNY:'Chinese yuan',JPY:'Japanese yen',KRW:'Korean won',HKD:'Hong Kong dollar',SGD:'Singapore dollar',EUR:'Euro',VND:'Vietnamese dong',MOP:'Macanese pataca',AUD:'Australian dollar',MYR:'Malaysian ringgit',INR:'Indian rupee'}};
-var XD={th:{cur:'สกุลเงิน',conv:'ยอดทั้งหมดแปลงเป็นบาทตามอัตราแลกเปลี่ยนของวันที่บันทึก',rate:'อัตราแลกเปลี่ยน (บาท ต่อ 1 {c})',loading:'กำลังดึงอัตราแลกเปลี่ยน...',ok:'อัตราของวันที่ {d} (แก้ไขได้)',fail:'ดึงอัตราอัตโนมัติไม่ได้ กรุณากรอกอัตราเอง',need:'กรุณากรอกอัตราแลกเปลี่ยน',theme:'สลับธีมมืด/สว่าง',edit:'แก้ไข',editT:'แก้ไขรายการ',saveE:'บันทึกการแก้ไข',cancel:'ยกเลิก',hint:'ปัดรายการไปทางซ้ายเพื่อแก้ไขหรือลบ',payc:'ชำระบัตร',payby:'จ่ายด้วย',cash:'เงินสด / โอน',card:'บัตรเครดิต','true':'คงเหลือจริง (หักยอดบัตรค้างชำระ)',cashleft:'เงินสดคงเหลือ (รายรับ − จ่ายเงินสด − ชำระบัตร)',unpaid:'หัก ใช้บัตรเดือนนี้ที่ยังไม่ชำระ',cdebt:'ยอดค้างบัตรสะสม ณ สิ้นเดือน',whichcard:'บัตรใบไหน',newcard:'ชื่อบัตรใหม่ เช่น KBank',addcard:'+ เพิ่มบัตรใหม่',card0:'ไม่ระบุบัตร',cardsT:'ยอดค้างชำระบัตรเครดิต แยกตามบัตร',cardsN:'ยอดค้างชำระ = ใช้บัตรสะสม − ชำระสะสม ถึงสิ้นเดือนที่เลือก',ccol:'บัตร',cuse:'ใช้เดือนนี้',cpay:'ชำระเดือนนี้',cowe:'ค้างชำระ',ctot:'รวม',tall:'ทั้งหมด',allcards:'ทุกบัตร',lscash:'จ่ายเงินสด / โอน',billT:'ยอดค้างตามรอบบิล / วันครบกำหนดชำระ',billN:'การชำระบัตรจะหักยอดรอบบิลที่เก่าที่สุดก่อน ตั้งวันตัดรอบและวันครบกำหนดของแต่ละบัตรเพื่อให้คำนวณวันครบกำหนดได้',cfgT:'ตั้งค่ารอบบิลแต่ละบัตร',cfgS:'ตัดรอบวันที่',cfgD:'ครบกำหนดวันที่',bSt:'ตัดรอบ',bDue:'ครบกำหนด',bAmt:'ค้างชำระ',bStat:'สถานะ',sUnb:'ยังไม่ออกบิล',sBill:'ออกบิลแล้ว',sOver:'เกินกำหนด',sToday:'ครบกำหนดวันนี้',sSoon:'อีก {n} วัน',sOk:'รอชำระ',nextDue:'ครบกำหนดถัดไป',overdueT:'เกินกำหนดแล้ว',noOwe:'ไม่มียอดค้างชำระ',needName:'ระบุชื่อบัตรเพื่อตั้งค่ารอบบิล'},en:{cur:'Currency',conv:'All totals are converted to Thai baht at the exchange rate of each entry date',rate:'Exchange rate (THB per 1 {c})',loading:'Fetching exchange rate...',ok:'Rate on {d} (editable)',fail:'Could not fetch the rate. Please enter it manually.',need:'Please enter the exchange rate',theme:'Switch dark / light theme',edit:'Edit',editT:'Edit entry',saveE:'Save changes',cancel:'Cancel',hint:'Swipe an entry left to edit or delete',payc:'Pay card',payby:'Paid by',cash:'Cash / transfer',card:'Credit card','true':'True balance (after unpaid card spending)',cashleft:'Cash left (income − cash spending − card payments)',unpaid:'Less: card spending not yet paid this month',cdebt:'Card balance owed at month end',whichcard:'Which card',newcard:'New card name, e.g. KBank',addcard:'+ Add new card',card0:'Unspecified card',cardsT:'Credit card balances by card',cardsN:'Balance owed = total spent − total paid, up to the end of the selected month',ccol:'Card',cuse:'Spent this month',cpay:'Paid this month',cowe:'Owed',ctot:'Total',tall:'All',allcards:'All cards',lscash:'Cash / transfer spending',billT:'Balance by statement / due date',billN:'Payments are applied to the oldest statement first. Set the statement day and due day of each card to calculate due dates.',cfgT:'Billing cycle settings per card',cfgS:'Statement day',cfgD:'Due day',bSt:'Statement',bDue:'Due',bAmt:'Owed',bStat:'Status',sUnb:'Not billed yet',sBill:'Billed',sOver:'Overdue',sToday:'Due today',sSoon:'In {n} days',sOk:'Pending',nextDue:'Next due',overdueT:'Overdue',noOwe:'No card balance owed',needName:'Name the card to set its billing cycle'}};
+var XD={th:{cur:'สกุลเงิน',conv:'ยอดทั้งหมดแปลงเป็นบาทตามอัตราแลกเปลี่ยนของวันที่บันทึก',rate:'อัตราแลกเปลี่ยน (บาท ต่อ 1 {c})',loading:'กำลังดึงอัตราแลกเปลี่ยน...',ok:'อัตราของวันที่ {d} (แก้ไขได้)',fail:'ดึงอัตราอัตโนมัติไม่ได้ กรุณากรอกอัตราเอง',need:'กรุณากรอกอัตราแลกเปลี่ยน',theme:'สลับธีมมืด/สว่าง',edit:'แก้ไข',editT:'แก้ไขรายการ',saveE:'บันทึกการแก้ไข',cancel:'ยกเลิก',hint:'ปัดรายการไปทางซ้ายเพื่อแก้ไขหรือลบ',payc:'ชำระบัตร',payby:'จ่ายด้วย',cash:'เงินสด / โอน',card:'บัตรเครดิต','true':'คงเหลือจริง (หักยอดบัตรค้างชำระ)',cashleft:'เงินสดคงเหลือ (รายรับ − จ่ายเงินสด − ชำระบัตร)',unpaid:'หัก ใช้บัตรเดือนนี้ที่ยังไม่ชำระ',cdebt:'ยอดค้างบัตรสะสม ณ สิ้นเดือน',whichcard:'บัตรใบไหน',newcard:'ชื่อบัตรใหม่ เช่น KBank',addcard:'+ เพิ่มบัตรใหม่',card0:'ไม่ระบุบัตร',cardsT:'ยอดค้างชำระบัตรเครดิต แยกตามบัตร',cardsN:'ค้างชำระ = ยอดยกมาจากเดือนก่อน + ใช้บัตรเดือนนี้ − ชำระเดือนนี้ ยอดค้างจะยกไปเดือนถัดไปเอง',ccol:'บัตร',cuse:'ใช้เดือนนี้',cpay:'ชำระเดือนนี้',cowe:'ค้างชำระ',ctot:'รวม',cbf:'ยกยอดมา',cfwd:'ยอดบัตรยกมาจากเดือนก่อน',cplus:'+ ใช้บัตรเดือนนี้',cminus:'− ชำระบัตรเดือนนี้',tall:'ทั้งหมด',allcards:'ทุกบัตร',lscash:'จ่ายเงินสด / โอน',billT:'ยอดค้างตามรอบบิล / วันครบกำหนดชำระ',billN:'การชำระบัตรจะหักยอดรอบบิลที่เก่าที่สุดก่อน ตั้งวันตัดรอบและวันครบกำหนดของแต่ละบัตรเพื่อให้คำนวณวันครบกำหนดได้',cfgT:'ตั้งค่ารอบบิลแต่ละบัตร',cfgS:'ตัดรอบวันที่',cfgD:'ครบกำหนดวันที่',bSt:'ตัดรอบ',bDue:'ครบกำหนด',bAmt:'ค้างชำระ',bStat:'สถานะ',sUnb:'ยังไม่ออกบิล',sBill:'ออกบิลแล้ว',sOver:'เกินกำหนด',sToday:'ครบกำหนดวันนี้',sSoon:'อีก {n} วัน',sOk:'รอชำระ',nextDue:'ครบกำหนดถัดไป',overdueT:'เกินกำหนดแล้ว',noOwe:'ไม่มียอดค้างชำระ',needName:'ระบุชื่อบัตรเพื่อตั้งค่ารอบบิล'},en:{cur:'Currency',conv:'All totals are converted to Thai baht at the exchange rate of each entry date',rate:'Exchange rate (THB per 1 {c})',loading:'Fetching exchange rate...',ok:'Rate on {d} (editable)',fail:'Could not fetch the rate. Please enter it manually.',need:'Please enter the exchange rate',theme:'Switch dark / light theme',edit:'Edit',editT:'Edit entry',saveE:'Save changes',cancel:'Cancel',hint:'Swipe an entry left to edit or delete',payc:'Pay card',payby:'Paid by',cash:'Cash / transfer',card:'Credit card','true':'True balance (after unpaid card spending)',cashleft:'Cash left (income − cash spending − card payments)',unpaid:'Less: card spending not yet paid this month',cdebt:'Card balance owed at month end',whichcard:'Which card',newcard:'New card name, e.g. KBank',addcard:'+ Add new card',card0:'Unspecified card',cardsT:'Credit card balances by card',cardsN:'Owed = brought forward from last month + spent this month − paid this month. The balance carries over to the next month automatically.',ccol:'Card',cuse:'Spent this month',cpay:'Paid this month',cowe:'Owed',ctot:'Total',cbf:'Brought fwd',cfwd:'Card balance brought forward',cplus:'+ Card spending this month',cminus:'− Card payments this month',tall:'All',allcards:'All cards',lscash:'Cash / transfer spending',billT:'Balance by statement / due date',billN:'Payments are applied to the oldest statement first. Set the statement day and due day of each card to calculate due dates.',cfgT:'Billing cycle settings per card',cfgS:'Statement day',cfgD:'Due day',bSt:'Statement',bDue:'Due',bAmt:'Owed',bStat:'Status',sUnb:'Not billed yet',sBill:'Billed',sOver:'Overdue',sToday:'Due today',sSoon:'In {n} days',sOk:'Pending',nextDue:'Next due',overdueT:'Overdue',noOwe:'No card balance owed',needName:'Name the card to set its billing cycle'}};
 function XL(k){return XD[lang][k]}
 function L(k){return I[lang][k]}
 function cn(c){return I[lang].cats[c]||c}
@@ -475,10 +478,10 @@ function listTabs(items){
     if(tx.some(function(t){return (t.type==='p'||(t.type==='e'&&t.pay==='card'))&&!t.card}))o+=op('',XL('card0'));
     cardNames().forEach(function(n){o+=op(n,n)});
     h+='<select id="lcs" aria-label="'+esc(XL('whichcard'))+'">'+o+'</select>';
-    var sp=0,pd=0,debt=0,k=key(Y,M);
+    var sp=0,pd=0,debt=0,bf=0,k=key(Y,M);
     items.forEach(function(a){if(a.type==='e')sp+=a.amt;else if(a.type==='p')pd+=a.amt});
-    tx.forEach(function(t){if(ym(t.date)>k)return;if(lc!=='*'&&(t.card||'')!==lc)return;if(t.type==='e'&&t.pay==='card')debt+=t.amt;else if(t.type==='p')debt-=t.amt});
-    h+='<div class="bk"><div><span>'+XL('cuse')+'</span><b>'+sm(sp)+'</b></div><div><span>'+XL('cpay')+'</span><b>'+sm(pd)+'</b></div><div><span>'+XL('cdebt')+'</span><b>'+sm(debt)+'</b></div></div>';
+    tx.forEach(function(t){if(ym(t.date)>k)return;if(lc!=='*'&&(t.card||'')!==lc)return;var sg=t.type==='e'&&t.pay==='card'?1:(t.type==='p'?-1:0);debt+=sg*t.amt;if(ym(t.date)<k)bf+=sg*t.amt});
+    h+='<div class="bk"><div><span>'+XL('cfwd')+'</span><b>'+sm(bf)+'</b></div><div><span>'+XL('cuse')+'</span><b>'+sm(sp)+'</b></div><div><span>'+XL('cpay')+'</span><b>'+sm(pd)+'</b></div><div><span>'+XL('cdebt')+'</span><b>'+sm(debt)+'</b></div></div>';
   }else if(lf==='cash'){
     var inc=0,ex=0;items.forEach(function(a){if(a.type==='i')inc+=a.amt;else if(a.type==='e')ex+=a.amt});
     h+='<div class="bk"><div><span>'+L('inc')+'</span><b>'+sm(inc)+'</b></div><div><span>'+XL('lscash')+'</span><b>'+sm(ex)+'</b></div></div>';
@@ -503,21 +506,21 @@ function fillCards(v){
 $('fp').onchange=cardUI;$('fk').onchange=function(){$('fkn').hidden=$('fk').value!=='__new__'};
 function renderCards(){
   var k=key(Y,M),map={},any=false;
-  cardNames().forEach(function(n){map[n]={c:0,p:0,d:0}});
+  cardNames().forEach(function(n){map[n]={b:0,c:0,p:0,d:0}});
   tx.forEach(function(t){
     if(!((t.type==='e'&&t.pay==='card')||t.type==='p'))return;
-    any=true;var n=t.card||'',r=map[n]||(map[n]={c:0,p:0,d:0}),tk=ym(t.date);
-    if(t.type==='e'){if(tk===k)r.c+=t.amt;if(tk<=k)r.d+=t.amt}else{if(tk===k)r.p+=t.amt;if(tk<=k)r.d-=t.amt}
+    any=true;var n=t.card||'',r=map[n]||(map[n]={b:0,c:0,p:0,d:0}),tk=ym(t.date);
+    if(t.type==='e'){if(tk===k)r.c+=t.amt;if(tk<=k)r.d+=t.amt;if(tk<k)r.b+=t.amt}else{if(tk===k)r.p+=t.amt;if(tk<=k)r.d-=t.amt;if(tk<k)r.b-=t.amt}
   });
   var names=Object.keys(map),box=$('cardsec');
   if(!any&&!names.length){box.innerHTML='';box.hidden=true;return}
   box.hidden=false;
   names.sort(function(a,b){return map[b].d-map[a].d});
-  var T={c:0,p:0,d:0};
+  var T={b:0,c:0,p:0,d:0};
   function s2(n){return (n<-0.005?'−':'')+money(Math.abs(n))}
-  var rows=names.map(function(n){var r=map[n];T.c+=r.c;T.p+=r.p;T.d+=r.d;
-    return '<tr><td>'+esc(n||XL('card0'))+'</td><td>'+money(r.c)+'</td><td>'+money(r.p)+'</td><td class="'+(r.d>0.005?'e':'i')+'"><b>'+s2(r.d)+'</b></td></tr>'}).join('');
-  box.innerHTML='<h2>'+XL('cardsT')+'</h2><div class="wrap"><table class="tb"><thead><tr><th>'+XL('ccol')+'</th><th>'+XL('cuse')+'</th><th>'+XL('cpay')+'</th><th>'+XL('cowe')+'</th></tr></thead><tbody>'+rows+'<tr class="sel"><td>'+XL('ctot')+'</td><td>'+money(T.c)+'</td><td>'+money(T.p)+'</td><td class="'+(T.d>0.005?'e':'i')+'">'+s2(T.d)+'</td></tr></tbody></table></div><p class="rm">'+XL('cardsN')+'</p>';
+  var rows=names.map(function(n){var r=map[n];T.b+=r.b;T.c+=r.c;T.p+=r.p;T.d+=r.d;
+    return '<tr><td>'+esc(n||XL('card0'))+'</td><td>'+s2(r.b)+'</td><td>'+money(r.c)+'</td><td>'+money(r.p)+'</td><td class="'+(r.d>0.005?'e':'i')+'"><b>'+s2(r.d)+'</b></td></tr>'}).join('');
+  box.innerHTML='<h2>'+XL('cardsT')+'</h2><div class="wrap"><table class="tb"><thead><tr><th>'+XL('ccol')+'</th><th>'+XL('cbf')+'</th><th>'+XL('cuse')+'</th><th>'+XL('cpay')+'</th><th>'+XL('cowe')+'</th></tr></thead><tbody>'+rows+'<tr class="sel"><td>'+XL('ctot')+'</td><td>'+s2(T.b)+'</td><td>'+money(T.c)+'</td><td>'+money(T.p)+'</td><td class="'+(T.d>0.005?'e':'i')+'">'+s2(T.d)+'</td></tr></tbody></table></div><p class="rm">'+XL('cardsN')+'</p>';
 }
 function sm(n){return (n<0?'−':'')+'฿'+money(Math.abs(n))}
 function cardStats(y,m){
@@ -533,7 +536,7 @@ function cardStats(y,m){
 function cardBk(t){
   var c=cardStats(Y,M);if(!(c.charge||c.pay||c.debt))return '';
   var A=t.i-c.cashExp-c.pay,D=c.charge-c.pay;
-  return '<div class="bk"><div><span>'+XL('cashleft')+'</span><b>'+sm(A)+'</b></div><div><span>'+XL('unpaid')+'</span><b>'+sm(-D)+'</b></div><div><span>'+XL('cdebt')+'</span><b>'+sm(c.debt)+'</b></div></div>';
+  return '<div class="bk"><div><span>'+XL('cashleft')+'</span><b>'+sm(A)+'</b></div><div><span>'+XL('unpaid')+'</span><b>'+sm(-D)+'</b></div><div class="bs"><span>'+XL('cfwd')+'</span><b>'+sm(c.debt-c.charge+c.pay)+'</b></div><div><span>'+XL('cplus')+'</span><b>'+sm(c.charge)+'</b></div><div><span>'+XL('cminus')+'</span><b>'+sm(-c.pay)+'</b></div><div class="bt"><span>'+XL('cdebt')+'</span><b>'+sm(c.debt)+'</b></div></div>';
 }
 function formMode(){$('f').parentNode.querySelector('h2').textContent=editId?XL('editT'):L('add');document.querySelector('.save').textContent=editId?XL('saveE'):L('save');var c=$('cx');c.hidden=!editId;c.textContent=XL('cancel')}
 function closeAll(ex){Array.prototype.forEach.call(document.querySelectorAll('.item.open'),function(it){if(it!==ex){it.classList.remove('open');it.querySelector('.row').style.transform=''}})}

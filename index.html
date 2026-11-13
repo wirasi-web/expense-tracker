@@ -211,7 +211,7 @@ var I={
 th:{title:'บัญชีรายรับรายจ่าย',inc:'รายรับ',exp:'รายจ่าย',add:'เพิ่มรายการ',date:'วันที่',amt:'จำนวนเงิน',cat:'หมวดหมู่',note:'บันทึกเพิ่มเติม',ph:'เช่น ข้าวกลางวัน',save:'บันทึกรายการ',prev:'เดือนก่อนหน้า',next:'เดือนถัดไป',mon:'เดือน',yr:'ปี',ce:'ค.ศ. ',left:'คงเหลือ',chart:'สรุปรายเดือน',total:'รวมทั้งปี',net:'สุทธิ',daily:'สรุปรายวัน',nodata:'ยังไม่มีรายการในเดือนนี้',bycat:'รายจ่ายแยกตามหมวด',noexp:'ยังไม่มีรายจ่ายในเดือนนี้',all:'รายการทั้งหมด',empty:'ยังไม่มีรายการ เพิ่มรายการแรกได้ที่แบบฟอร์มด้านบน',del:'ลบ',sure:'ยืนยันลบ',up:'เลื่อนขึ้น',dn:'เลื่อนลง',thb:'บาท',months:MONTHS,short:SHORT,wd:['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'],cats:{}},
 en:{title:'Income & Expense Tracker',inc:'Income',exp:'Expense',add:'Add entry',date:'Date',amt:'Amount',cat:'Category',note:'Note',ph:'e.g. Lunch',save:'Save entry',prev:'Previous month',next:'Next month',mon:'Month',yr:'Year',ce:'',left:'Balance',chart:'Monthly summary',total:'Year total',net:'Net',daily:'Daily summary',nodata:'No entries this month',bycat:'Expenses by category',noexp:'No expenses this month',all:'All entries',empty:'No entries yet. Add your first one in the form above.',del:'Delete',sure:'Confirm',up:'Scroll up',dn:'Scroll down',thb:'THB',months:['January','February','March','April','May','June','July','August','September','October','November','December'],short:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],cats:{'อาหาร':'Food','เดินทาง':'Transport','ที่พัก':'Housing','ช้อปปิ้ง':'Shopping','ค่าน้ำ ค่าไฟ ค่าเน็ต':'Utilities','สุขภาพ':'Health','บันเทิง':'Entertainment','อื่นๆ':'Other','เงินเดือน':'Salary','โบนัส':'Bonus','ขายของ/ธุรกิจ':'Business','ของขวัญ':'Gift','ชำระบัตรเครดิต':'Credit card payment','ลงทุน':'Investment','งวดรถ':'Car installment'}}
 };
-function monY(){return MONTHS[M]+' '+Y}
+function monY(){return MONTHS[M]+' '+yn(Y)}
 function dayTxt(d,m){return d+' '+MONTHS[m]}
 var CODES=['THB','USD','EUR','CNY','JPY','KRW','HKD','SGD','AUD','MYR','INR','MOP','VND'];
 var CURN={th:{THB:'บาทไทย',USD:'ดอลลาร์สหรัฐ',CNY:'หยวนจีน',JPY:'เยนญี่ปุ่น',KRW:'วอนเกาหลี',HKD:'ดอลลาร์ฮ่องกง',SGD:'ดอลลาร์สิงคโปร์',EUR:'ยูโร',VND:'ดองเวียดนาม',MOP:'ปาตากามาเก๊า',AUD:'ดอลลาร์ออสเตรเลีย',MYR:'ริงกิตมาเลเซีย',INR:'รูปีอินเดีย'},en:{THB:'Thai baht',USD:'US dollar',CNY:'Chinese yuan',JPY:'Japanese yen',KRW:'Korean won',HKD:'Hong Kong dollar',SGD:'Singapore dollar',EUR:'Euro',VND:'Vietnamese dong',MOP:'Macanese pataca',AUD:'Australian dollar',MYR:'Malaysian ringgit',INR:'Indian rupee'}};
@@ -257,7 +257,7 @@ function fillSelects(){
   var ys={};ys[Y]=1;
   for(var y0=2026;y0<=2030;y0++)ys[y0]=1;
   tx.forEach(function(t){ys[+t.date.slice(0,4)]=1});
-  $('selY').innerHTML=Object.keys(ys).sort().map(function(y){return '<option value="'+y+'">'+L('ce')+y+'</option>'}).join('');
+  $('selY').innerHTML=Object.keys(ys).sort().map(function(y){return '<option value="'+y+'">'+yr(y)+'</option>'}).join('');
   $('selM').value=M;$('selY').value=Y;
 }
 function setCats(){
@@ -277,7 +277,7 @@ function render(){
     '<div class="two"><div class="pill i"><span>'+L('inc')+'</span><b>฿'+money(t.i)+'</b></div>'+
     '<div class="pill e"><span>'+L('exp')+'</span><b>฿'+money(t.e)+'</b></div></div>'+cardBk(t)+'<p class="lbl cap">'+XL('conv')+'</p>';
   // chart
-  $('chartT').textContent=L('chart')+' '+L('ce')+Y;
+  $('chartT').textContent=L('chart')+' '+yr(Y);
   var data=[],max=1;
   for(var m=0;m<12;m++){var x=totals(Y,m);data.push(x);max=Math.max(max,x.i,x.e);}
   $('chart').innerHTML=data.map(function(x,m){
@@ -287,7 +287,7 @@ function render(){
   renderCards();renderBills();
   // monthly table
   var yi=0,ye=0;
-  $('mtab').innerHTML='<div class="mh"><h2>'+L('chart')+' '+L('ce')+Y+'</h2><span><button type="button" class="ar" id="mUp" aria-label="'+L('up')+'">▲</button><button type="button" class="ar" id="mDn" aria-label="'+L('dn')+'">▼</button></span></div><div class="wrap mscroll" id="mscroll"><table class="tb"><thead><tr><th>'+L('mon')+'</th><th>'+L('inc')+'</th><th>'+L('exp')+'</th><th>'+L('left')+'</th></tr></thead><tbody>'+
+  $('mtab').innerHTML='<div class="mh"><h2>'+L('chart')+' '+yr(Y)+'</h2><span><button type="button" class="ar" id="mUp" aria-label="'+L('up')+'">▲</button><button type="button" class="ar" id="mDn" aria-label="'+L('dn')+'">▼</button></span></div><div class="wrap mscroll" id="mscroll"><table class="tb"><thead><tr><th>'+L('mon')+'</th><th>'+L('inc')+'</th><th>'+L('exp')+'</th><th>'+L('left')+'</th></tr></thead><tbody>'+
     data.map(function(x,m){yi+=x.i;ye+=x.e;var n=x.i-x.e;
       return '<tr data-m="'+m+'"'+(m===M?' class="sel"':'')+'><td>'+MONTHS[m]+'</td><td class="i">'+money(x.i)+'</td><td class="e">'+money(x.e)+'</td><td class="'+(n<0?'e':'i')+'">'+(n<0?'−':'')+money(Math.abs(n))+'</td></tr>';}).join('')+
     '</tbody></table></div><p class="yt">'+L('total')+' '+L('inc')+' <b class="gi">'+money(yi)+'</b> '+L('exp')+' <b class="ge">'+money(ye)+'</b> '+L('left')+' <b class="'+(yi-ye<0?'ge':'gi')+'">'+(yi-ye<0?'−':'')+money(Math.abs(yi-ye))+'</b></p>';
@@ -396,13 +396,15 @@ function metaTheme(){var m=document.querySelector('meta[name=theme-color]');if(m
 function setTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem(TK,t)}catch(e){}metaTheme();themeIcon()}
 $('theme').onclick=function(){setTheme(curTheme()==='dark'?'light':'dark')};
 var editId=null,sw=null,lastSw=0,SW=152;
+function yn(y){return lang==='th'?+y+543:+y}
+function yr(y){return lang==='th'?'พ.ศ. '+yn(y):''+y}
 var cfgOpen=false,cfgs={};
 try{cfgs=JSON.parse(localStorage.getItem('thai-ledger-cardcfg')||'{}')}catch(e){cfgs={}}
 function dim(y,m){return new Date(y,m+1,0).getDate()}
 function mkd(y,m,d){return new Date(y,m,Math.min(d,dim(y,m)))}
 function dstr(dt){return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate())}
 function fdate(dt){var y=dt.getFullYear(),m=dt.getMonth(),d=dt.getDate(),cy=new Date().getFullYear();
-  return d+' '+SHORT[m]+(y!==cy?' '+y:'')}
+  return d+' '+SHORT[m]+(y!==cy?' '+yn(y):'')}
 function ccfg(n){var c=cfgs[n]||{};return {s:c.s>0?c.s:31,d:c.d>0?c.d:0}}
 function cycleOf(ds,S,D){
   var y=+ds.slice(0,4),m=+ds.slice(5,7)-1,d=+ds.slice(8),sy=y,sm=m;

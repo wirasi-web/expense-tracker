@@ -163,7 +163,6 @@ input,select{width:100%}
 
   <section class="card" id="sum"></section>
   <section class="card" id="cardsec" hidden></section>
-  <section class="card" id="billsec" hidden></section>
 
   <section class="card">
     <h2 id="chartT"></h2>
@@ -284,7 +283,7 @@ function render(){
     return '<button class="col'+(m===M?' sel':'')+'" data-m="'+m+'" aria-label="'+MONTHS[m]+' '+L('inc')+' '+money(x.i)+' '+L('exp')+' '+money(x.e)+' '+L('thb')+'">'+
       '<span class="bars"><i class="bi" style="height:'+(x.i/max*100)+'%"></i><i class="be" style="height:'+(x.e/max*100)+'%"></i></span>'+SHORT[m]+'</button>';
   }).join('');
-  renderCards();renderBills();
+  renderCards();
   // monthly table
   var yi=0,ye=0;
   $('mtab').innerHTML='<div class="mh"><h2>'+L('chart')+' '+yr(Y)+'</h2><span><button type="button" class="ar" id="mUp" aria-label="'+L('up')+'">▲</button><button type="button" class="ar" id="mDn" aria-label="'+L('dn')+'">▼</button></span></div><div class="wrap mscroll" id="mscroll"><table class="tb"><thead><tr><th>'+L('mon')+'</th><th>'+L('inc')+'</th><th>'+L('exp')+'</th><th>'+L('left')+'</th></tr></thead><tbody>'+
@@ -398,74 +397,6 @@ $('theme').onclick=function(){setTheme(curTheme()==='dark'?'light':'dark')};
 var editId=null,sw=null,lastSw=0,SW=152;
 function yn(y){return lang==='th'?+y+543:+y}
 function yr(y){return lang==='th'?'พ.ศ. '+yn(y):''+y}
-var cfgOpen=false,cfgs={};
-try{cfgs=JSON.parse(localStorage.getItem('thai-ledger-cardcfg')||'{}')}catch(e){cfgs={}}
-function dim(y,m){return new Date(y,m+1,0).getDate()}
-function mkd(y,m,d){return new Date(y,m,Math.min(d,dim(y,m)))}
-function dstr(dt){return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate())}
-function fdate(dt){var y=dt.getFullYear(),m=dt.getMonth(),d=dt.getDate(),cy=new Date().getFullYear();
-  return d+' '+SHORT[m]+(y!==cy?' '+yn(y):'')}
-function ccfg(n){var c=cfgs[n]||{};return {s:c.s>0?c.s:31,d:c.d>0?c.d:0}}
-function cycleOf(ds,S,D){
-  var y=+ds.slice(0,4),m=+ds.slice(5,7)-1,d=+ds.slice(8),sy=y,sm=m;
-  if(d>Math.min(S,dim(y,m))){sm=m+1;if(sm>11){sm=0;sy=y+1}}
-  var st=mkd(sy,sm,S),due=null;
-  if(D){var dy=sy,dm2=sm;if(D<=S){dm2=sm+1;if(dm2>11){dm2=0;dy=sy+1}}due=mkd(dy,dm2,D)}
-  return {st:st,due:due};
-}
-function renderBills(){
-  var box=$('billsec'),asOf=key(Y,M)+'-'+pad(dim(Y,M)),td=todayStr(),ref=td<asOf?td:asOf,by={},any=false;
-  tx.forEach(function(t){
-    if(t.date>asOf)return;
-    var isE=t.type==='e'&&t.pay==='card';if(!isE&&t.type!=='p')return;
-    any=true;var n=t.card||'',o=by[n]||(by[n]={cyc:{},pays:[]});
-    if(isE){var c=ccfg(n),cy=cycleOf(t.date,c.s,c.d),k=dstr(cy.st),x=o.cyc[k]||(o.cyc[k]={st:cy.st,due:cy.due,amt:0,last:''});x.amt+=t.amt;if(t.date>x.last)x.last=t.date}
-    else o.pays.push({d:t.date,a:t.amt});
-  });
-  cardNames().forEach(function(n){if(!by[n])by[n]={cyc:{},pays:[]}});
-  var names=Object.keys(by).sort();
-  if(!any&&!names.length){box.innerHTML='';box.hidden=true;return}
-  box.hidden=false;
-  var refD=new Date(ref+'T00:00:00'),cand=[];
-  names.forEach(function(n){
-    var o=by[n],ks=Object.keys(o.cyc).sort();
-    if(!ks.length)return;
-    var c=o.cyc[ks[ks.length-1]],paid=0;
-    o.pays.forEach(function(p){if(p.d>=c.last)paid+=p.a});
-    c.left=Math.round((c.amt-paid)*100)/100;
-    if(c.left>0.005)cand.push({n:n,c:c});
-  });
-  var over=false,next=null,rows='';
-  cand.forEach(function(x){
-    var c=x.c,st,cl='';
-    if(dstr(c.st)>ref){st=XL('sUnb');cl='st-unb'}
-    else if(!c.due){st=XL('sBill')}
-    else{
-      var df=Math.round((c.due-refD)/864e5);
-      if(df<0){st=XL('sOver');cl='st-over';over=true}
-      else{
-        if(df===0){st=XL('sToday');cl='st-soon'}else if(df<=7){st=XL('sSoon').replace('{n}',df);cl='st-soon'}else st=XL('sOk');
-        if(!next||c.due<next.due)next={n:x.n,due:c.due,amt:c.left};
-      }
-    }
-    rows+='<tr><td>'+esc(x.n||XL('card0'))+'</td><td>'+fdate(c.st)+'</td><td>'+(c.due?fdate(c.due):'-')+'</td><td class="e"><b>'+money(c.left)+'</b></td><td class="'+cl+'">'+esc(st)+'</td></tr>';
-  });
-  var top='';
-  if(over)top+='<p class="warnline st-over">'+XL('overdueT')+'</p>';
-  if(next)top+='<p class="warnline">'+XL('nextDue')+': '+esc(next.n||XL('card0'))+' '+sm(next.amt)+' ('+fdate(next.due)+')</p>';
-  var body=rows?'<div class="wrap"><table class="tb"><thead><tr><th>'+XL('ccol')+'</th><th>'+XL('bSt')+'</th><th>'+XL('bDue')+'</th><th>'+XL('bAmt')+'</th><th>'+XL('bStat')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="empty">'+XL('noOwe')+'</p>';
-  var cf=cardNames().map(function(n){var c=cfgs[n]||{};
-    return '<div class="cfgrow"><b>'+esc(n)+'</b><div><label>'+XL('cfgS')+'</label><input type="number" min="1" max="31" inputmode="numeric" data-c="'+esc(n)+'" data-k="s" value="'+(c.s||'')+'"></div><div><label>'+XL('cfgD')+'</label><input type="number" min="1" max="31" inputmode="numeric" data-c="'+esc(n)+'" data-k="d" value="'+(c.d||'')+'"></div></div>'}).join('');
-  box.innerHTML='<h2>'+XL('billT')+'</h2>'+top+body+'<p class="rm">'+XL('billN')+'</p><details class="cfg"'+(cfgOpen?' open':'')+'><summary>'+XL('cfgT')+'</summary>'+(cf||'<p class="rm">'+XL('needName')+'</p>')+'</details>';
-}
-$('billsec').addEventListener('change',function(e){
-  var i=e.target;if(!i.dataset||!i.dataset.c)return;
-  var v=parseInt(i.value,10);if(!(v>=1&&v<=31))v=0;
-  var c=cfgs[i.dataset.c]||(cfgs[i.dataset.c]={});c[i.dataset.k]=v;
-  try{localStorage.setItem('thai-ledger-cardcfg',JSON.stringify(cfgs))}catch(x){}
-  render();
-});
-$('billsec').addEventListener('toggle',function(e){if(e.target.classList&&e.target.classList.contains('cfg'))cfgOpen=e.target.open},true);
 var lf='all',lc='*';
 function listFilter(a){
   if(lf==='all')return true;

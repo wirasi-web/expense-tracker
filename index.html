@@ -58,7 +58,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .col.sel .bars{background:var(--bg);border-radius:6px}
 .legend{display:flex;gap:14px;font-size:13px;color:var(--muted);margin-top:10px}
 .dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:12px}
 .seg button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:10px;font:inherit;font-weight:600;cursor:pointer;min-height:44px}
 .seg button[aria-pressed="true"].i{background:var(--inc);border-color:var(--inc);color:#fff}
 .seg button[aria-pressed="true"].e{background:var(--exp);border-color:var(--exp);color:#fff}
@@ -104,6 +104,9 @@ input,select{width:100%}
 .cfgrow>b{grid-column:1/-1;font-weight:600}
 .seg button[aria-pressed="true"].p{background:#5B4BC4;border-color:#5B4BC4;color:#fff}
 .amt.p{color:var(--ink)}
+.amt.b{color:var(--muted)}
+.seg button[aria-pressed="true"].b{background:#0E7C86;border-color:#0E7C86;color:#fff}
+.rm+h2{margin-top:16px}
 .bk{margin-top:14px;border-top:1px solid var(--line);padding-top:8px;font-size:14px}
 .bk div{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
 .bk span{color:var(--muted)}
@@ -179,6 +182,7 @@ input,select{width:100%}
       <button type="button" class="e" id="tE" aria-pressed="true">รายจ่าย</button>
       <button type="button" class="i" id="tI" aria-pressed="false">รายรับ</button>
       <button type="button" class="p" id="tP" aria-pressed="false"></button>
+      <button type="button" class="b" id="tB" aria-pressed="false"></button>
     </div>
     <form id="f">
       <div><label for="fd">วันที่</label><input type="date" id="fd" required></div>
@@ -202,19 +206,19 @@ input,select{width:100%}
 (function(){
 var MONTHS=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 var SHORT=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-var CATS={e:['อาหาร','เดินทาง','ที่พัก','ช้อปปิ้ง','ค่าน้ำ ค่าไฟ ค่าเน็ต','สุขภาพ','งวดรถ','บันเทิง','ลงทุน','อื่นๆ'],i:['เงินเดือน','โบนัส','ขายของ/ธุรกิจ','ของขวัญ','ลงทุน','อื่นๆ'],p:['ชำระบัตรเครดิต']};
+var CATS={e:['อาหาร','เดินทาง','ที่พัก','ช้อปปิ้ง','ค่าน้ำ ค่าไฟ ค่าเน็ต','สุขภาพ','งวดรถ','บันเทิง','ลงทุน','อื่นๆ'],i:['เงินเดือน','โบนัส','ขายของ/ธุรกิจ','ของขวัญ','ลงทุน','อื่นๆ'],p:['ชำระบัตรเครดิต'],b:['บิลบัตร']};
 var KEY='thai-ledger-v1';
 var LK='thai-ledger-lang',lang='th';
 try{var sl=localStorage.getItem(LK);if(sl==='en'||sl==='th')lang=sl;}catch(e){}
 var I={
 th:{title:'บัญชีรายรับรายจ่าย',inc:'รายรับ',exp:'รายจ่าย',add:'เพิ่มรายการ',date:'วันที่',amt:'จำนวนเงิน',cat:'หมวดหมู่',note:'บันทึกเพิ่มเติม',ph:'เช่น ข้าวกลางวัน',save:'บันทึกรายการ',prev:'เดือนก่อนหน้า',next:'เดือนถัดไป',mon:'เดือน',yr:'ปี',ce:'ค.ศ. ',left:'คงเหลือ',chart:'สรุปรายเดือน',total:'รวมทั้งปี',net:'สุทธิ',daily:'สรุปรายวัน',nodata:'ยังไม่มีรายการในเดือนนี้',bycat:'รายจ่ายแยกตามหมวด',noexp:'ยังไม่มีรายจ่ายในเดือนนี้',all:'รายการทั้งหมด',empty:'ยังไม่มีรายการ เพิ่มรายการแรกได้ที่แบบฟอร์มด้านบน',del:'ลบ',sure:'ยืนยันลบ',up:'เลื่อนขึ้น',dn:'เลื่อนลง',thb:'บาท',months:MONTHS,short:SHORT,wd:['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'],cats:{}},
-en:{title:'Income & Expense Tracker',inc:'Income',exp:'Expense',add:'Add entry',date:'Date',amt:'Amount',cat:'Category',note:'Note',ph:'e.g. Lunch',save:'Save entry',prev:'Previous month',next:'Next month',mon:'Month',yr:'Year',ce:'',left:'Balance',chart:'Monthly summary',total:'Year total',net:'Net',daily:'Daily summary',nodata:'No entries this month',bycat:'Expenses by category',noexp:'No expenses this month',all:'All entries',empty:'No entries yet. Add your first one in the form above.',del:'Delete',sure:'Confirm',up:'Scroll up',dn:'Scroll down',thb:'THB',months:['January','February','March','April','May','June','July','August','September','October','November','December'],short:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],cats:{'อาหาร':'Food','เดินทาง':'Transport','ที่พัก':'Housing','ช้อปปิ้ง':'Shopping','ค่าน้ำ ค่าไฟ ค่าเน็ต':'Utilities','สุขภาพ':'Health','บันเทิง':'Entertainment','อื่นๆ':'Other','เงินเดือน':'Salary','โบนัส':'Bonus','ขายของ/ธุรกิจ':'Business','ของขวัญ':'Gift','ชำระบัตรเครดิต':'Credit card payment','ลงทุน':'Investment','งวดรถ':'Car installment'}}
+en:{title:'Income & Expense Tracker',inc:'Income',exp:'Expense',add:'Add entry',date:'Date',amt:'Amount',cat:'Category',note:'Note',ph:'e.g. Lunch',save:'Save entry',prev:'Previous month',next:'Next month',mon:'Month',yr:'Year',ce:'',left:'Balance',chart:'Monthly summary',total:'Year total',net:'Net',daily:'Daily summary',nodata:'No entries this month',bycat:'Expenses by category',noexp:'No expenses this month',all:'All entries',empty:'No entries yet. Add your first one in the form above.',del:'Delete',sure:'Confirm',up:'Scroll up',dn:'Scroll down',thb:'THB',months:['January','February','March','April','May','June','July','August','September','October','November','December'],short:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],cats:{'อาหาร':'Food','เดินทาง':'Transport','ที่พัก':'Housing','ช้อปปิ้ง':'Shopping','ค่าน้ำ ค่าไฟ ค่าเน็ต':'Utilities','สุขภาพ':'Health','บันเทิง':'Entertainment','อื่นๆ':'Other','เงินเดือน':'Salary','โบนัส':'Bonus','ขายของ/ธุรกิจ':'Business','ของขวัญ':'Gift','ชำระบัตรเครดิต':'Credit card payment','ลงทุน':'Investment','งวดรถ':'Car installment','บิลบัตร':'Credit card bill'}}
 };
 function monY(){return MONTHS[M]+' '+yn(Y)}
 function dayTxt(d,m){return d+' '+MONTHS[m]}
 var CODES=['THB','USD','EUR','CNY','JPY','KRW','HKD','SGD','AUD','MYR','INR','MOP','VND'];
 var CURN={th:{THB:'บาทไทย',USD:'ดอลลาร์สหรัฐ',CNY:'หยวนจีน',JPY:'เยนญี่ปุ่น',KRW:'วอนเกาหลี',HKD:'ดอลลาร์ฮ่องกง',SGD:'ดอลลาร์สิงคโปร์',EUR:'ยูโร',VND:'ดองเวียดนาม',MOP:'ปาตากามาเก๊า',AUD:'ดอลลาร์ออสเตรเลีย',MYR:'ริงกิตมาเลเซีย',INR:'รูปีอินเดีย'},en:{THB:'Thai baht',USD:'US dollar',CNY:'Chinese yuan',JPY:'Japanese yen',KRW:'Korean won',HKD:'Hong Kong dollar',SGD:'Singapore dollar',EUR:'Euro',VND:'Vietnamese dong',MOP:'Macanese pataca',AUD:'Australian dollar',MYR:'Malaysian ringgit',INR:'Indian rupee'}};
-var XD={th:{cur:'สกุลเงิน',conv:'ยอดทั้งหมดแปลงเป็นบาทตามอัตราแลกเปลี่ยนของวันที่บันทึก',rate:'อัตราแลกเปลี่ยน (บาท ต่อ 1 {c})',loading:'กำลังดึงอัตราแลกเปลี่ยน...',ok:'อัตราของวันที่ {d} (แก้ไขได้)',fail:'ดึงอัตราอัตโนมัติไม่ได้ กรุณากรอกอัตราเอง',need:'กรุณากรอกอัตราแลกเปลี่ยน',theme:'สลับธีมมืด/สว่าง',edit:'แก้ไข',editT:'แก้ไขรายการ',saveE:'บันทึกการแก้ไข',cancel:'ยกเลิก',hint:'ปัดรายการไปทางซ้ายเพื่อแก้ไขหรือลบ',payc:'ชำระบัตร',payby:'จ่ายด้วย',cash:'เงินสด / โอน',card:'บัตรเครดิต','true':'คงเหลือจริง (หักยอดบัตรค้างชำระ)',cashleft:'เงินสดคงเหลือ (รายรับ − จ่ายเงินสด − ชำระบัตร)',unpaid:'หัก ใช้บัตรเดือนนี้ที่ยังไม่ชำระ',cdebt:'ยอดค้างบัตรสะสม ณ สิ้นเดือน',whichcard:'บัตรใบไหน',newcard:'ชื่อบัตรใหม่ เช่น KBank',addcard:'+ เพิ่มบัตรใหม่',card0:'ไม่ระบุบัตร',cardsT:'ยอดค้างชำระบัตรเครดิต แยกตามเดือนที่รูด',cardsN:'ยอดชำระนับตามเดือนที่บันทึกการชำระ แต่ละเดือนแสดงแยกกัน ไม่รวมเป็นก้อนเดียว',ccol:'บัตร',cuse:'ใช้เดือนนี้',cpay:'ชำระเดือนนี้',cowe:'ค้างชำระ',ctot:'รวม',cmon:'เดือนที่รูดบัตร',older:'ยังมีบิลรอบก่อนหน้าค้างอีก {n} รอบ (ดูในตารางยอดค้างแยกตามเดือนที่รูด)',cchg:'ยอดรูด',cpd:'ชำระแล้ว',cbf:'ยกยอดมา',cfwd:'ยอดบัตรยกมาจากเดือนก่อน',cplus:'+ ใช้บัตรเดือนนี้',cminus:'− ชำระบัตรเดือนนี้',tall:'ทั้งหมด',allcards:'ทุกบัตร',lscash:'จ่ายเงินสด / โอน',billT:'ยอดค้างบิลล่าสุด / วันครบกำหนดชำระ',billN:'ใช้เฉพาะยอดบัตรของรอบบิลล่าสุดของแต่ละบัตร ถือว่ายอดที่บันทึกคือยอดค้างล่าสุดอยู่แล้ว จึงไม่รวมสะสมจากรอบเก่า และหักด้วยการชำระที่บันทึกหลังรายการล่าสุดนั้น ตั้งวันตัดรอบและวันครบกำหนดของแต่ละบัตรเพื่อให้คำนวณวันครบกำหนดได้',cfgT:'ตั้งค่ารอบบิลแต่ละบัตร',cfgS:'ตัดรอบวันที่',cfgD:'ครบกำหนดวันที่',bSt:'ตัดรอบ',bDue:'ครบกำหนด',bAmt:'ค้างชำระ',bStat:'สถานะ',sUnb:'ยังไม่ออกบิล',sBill:'ออกบิลแล้ว',sOver:'เกินกำหนด',sToday:'ครบกำหนดวันนี้',sSoon:'อีก {n} วัน',sOk:'รอชำระ',nextDue:'ครบกำหนดถัดไป',overdueT:'เกินกำหนดแล้ว',noOwe:'ไม่มียอดค้างชำระ',needName:'ระบุชื่อบัตรเพื่อตั้งค่ารอบบิล'},en:{cur:'Currency',conv:'All totals are converted to Thai baht at the exchange rate of each entry date',rate:'Exchange rate (THB per 1 {c})',loading:'Fetching exchange rate...',ok:'Rate on {d} (editable)',fail:'Could not fetch the rate. Please enter it manually.',need:'Please enter the exchange rate',theme:'Switch dark / light theme',edit:'Edit',editT:'Edit entry',saveE:'Save changes',cancel:'Cancel',hint:'Swipe an entry left to edit or delete',payc:'Pay card',payby:'Paid by',cash:'Cash / transfer',card:'Credit card','true':'True balance (after unpaid card spending)',cashleft:'Cash left (income − cash spending − card payments)',unpaid:'Less: card spending not yet paid this month',cdebt:'Card balance owed at month end',whichcard:'Which card',newcard:'New card name, e.g. KBank',addcard:'+ Add new card',card0:'Unspecified card',cardsT:'Credit card balance owed, by month charged',cardsN:'Payments are counted in the month they were recorded. Each month is shown separately.',ccol:'Card',cuse:'Spent this month',cpay:'Paid this month',cowe:'Owed',ctot:'Total',cmon:'Month charged',older:'Earlier statements still owed: {n} (see the table by month charged)',cchg:'Charged',cpd:'Paid off',cbf:'Brought fwd',cfwd:'Card balance brought forward',cplus:'+ Card spending this month',cminus:'− Card payments this month',tall:'All',allcards:'All cards',lscash:'Cash / transfer spending',billT:'Latest bill balance / due date',billN:'Only the latest statement of each card is used. The amount you record is treated as the current balance, so older statements are not added up. Payments recorded after that entry are deducted. Set the statement day and due day of each card to calculate due dates.',cfgT:'Billing cycle settings per card',cfgS:'Statement day',cfgD:'Due day',bSt:'Statement',bDue:'Due',bAmt:'Owed',bStat:'Status',sUnb:'Not billed yet',sBill:'Billed',sOver:'Overdue',sToday:'Due today',sSoon:'In {n} days',sOk:'Pending',nextDue:'Next due',overdueT:'Overdue',noOwe:'No card balance owed',needName:'Name the card to set its billing cycle'}};
+var XD={th:{cur:'สกุลเงิน',conv:'ยอดทั้งหมดแปลงเป็นบาทตามอัตราแลกเปลี่ยนของวันที่บันทึก',rate:'อัตราแลกเปลี่ยน (บาท ต่อ 1 {c})',loading:'กำลังดึงอัตราแลกเปลี่ยน...',ok:'อัตราของวันที่ {d} (แก้ไขได้)',fail:'ดึงอัตราอัตโนมัติไม่ได้ กรุณากรอกอัตราเอง',need:'กรุณากรอกอัตราแลกเปลี่ยน',theme:'สลับธีมมืด/สว่าง',edit:'แก้ไข',editT:'แก้ไขรายการ',saveE:'บันทึกการแก้ไข',cancel:'ยกเลิก',hint:'ปัดรายการไปทางซ้ายเพื่อแก้ไขหรือลบ',payc:'ชำระบัตร',payby:'จ่ายด้วย',cash:'เงินสด / โอน',card:'บัตรเครดิต','true':'คงเหลือจริง (หักยอดบัตรค้างชำระ)',cashleft:'เงินสดคงเหลือ (รายรับ − จ่ายเงินสด − ชำระบัตร)',unpaid:'หัก ใช้บัตรเดือนนี้ที่ยังไม่ชำระ',cdebt:'ยอดค้างบัตรสะสม ณ สิ้นเดือน',whichcard:'บัตรใบไหน',newcard:'ชื่อบัตรใหม่ เช่น KBank',addcard:'+ เพิ่มบัตรใหม่',card0:'ไม่ระบุบัตร',cardsT:'ยอดค้างชำระบัตรเครดิต แยกตามเดือนที่รูด',cardsN:'ยอดชำระนับตามเดือนที่บันทึกการชำระ แต่ละเดือนแสดงแยกกัน ไม่รวมเป็นก้อนเดียว',ccol:'บัตร',cuse:'ใช้เดือนนี้',cpay:'ชำระเดือนนี้',cowe:'ค้างชำระ',ctot:'รวม',billc:'บิลบัตร',billsT:'บิลบัตรเครดิต (บันทึกไว้ดูอย่างเดียว)',billamt:'ยอดบิล',billsN:'ยอดบิลนี้ไม่นับเป็นรายรับหรือรายจ่าย ใช้ดูเทียบกับยอดที่รูดบัตรเท่านั้น',cmon:'เดือนที่รูดบัตร',older:'ยังมีบิลรอบก่อนหน้าค้างอีก {n} รอบ (ดูในตารางยอดค้างแยกตามเดือนที่รูด)',cchg:'ยอดรูด',cpd:'ชำระแล้ว',cbf:'ยกยอดมา',cfwd:'ยอดบัตรยกมาจากเดือนก่อน',cplus:'+ ใช้บัตรเดือนนี้',cminus:'− ชำระบัตรเดือนนี้',tall:'ทั้งหมด',allcards:'ทุกบัตร',lscash:'จ่ายเงินสด / โอน',billT:'ยอดค้างบิลล่าสุด / วันครบกำหนดชำระ',billN:'ใช้เฉพาะยอดบัตรของรอบบิลล่าสุดของแต่ละบัตร ถือว่ายอดที่บันทึกคือยอดค้างล่าสุดอยู่แล้ว จึงไม่รวมสะสมจากรอบเก่า และหักด้วยการชำระที่บันทึกหลังรายการล่าสุดนั้น ตั้งวันตัดรอบและวันครบกำหนดของแต่ละบัตรเพื่อให้คำนวณวันครบกำหนดได้',cfgT:'ตั้งค่ารอบบิลแต่ละบัตร',cfgS:'ตัดรอบวันที่',cfgD:'ครบกำหนดวันที่',bSt:'ตัดรอบ',bDue:'ครบกำหนด',bAmt:'ค้างชำระ',bStat:'สถานะ',sUnb:'ยังไม่ออกบิล',sBill:'ออกบิลแล้ว',sOver:'เกินกำหนด',sToday:'ครบกำหนดวันนี้',sSoon:'อีก {n} วัน',sOk:'รอชำระ',nextDue:'ครบกำหนดถัดไป',overdueT:'เกินกำหนดแล้ว',noOwe:'ไม่มียอดค้างชำระ',needName:'ระบุชื่อบัตรเพื่อตั้งค่ารอบบิล'},en:{cur:'Currency',conv:'All totals are converted to Thai baht at the exchange rate of each entry date',rate:'Exchange rate (THB per 1 {c})',loading:'Fetching exchange rate...',ok:'Rate on {d} (editable)',fail:'Could not fetch the rate. Please enter it manually.',need:'Please enter the exchange rate',theme:'Switch dark / light theme',edit:'Edit',editT:'Edit entry',saveE:'Save changes',cancel:'Cancel',hint:'Swipe an entry left to edit or delete',payc:'Pay card',payby:'Paid by',cash:'Cash / transfer',card:'Credit card','true':'True balance (after unpaid card spending)',cashleft:'Cash left (income − cash spending − card payments)',unpaid:'Less: card spending not yet paid this month',cdebt:'Card balance owed at month end',whichcard:'Which card',newcard:'New card name, e.g. KBank',addcard:'+ Add new card',card0:'Unspecified card',cardsT:'Credit card balance owed, by month charged',cardsN:'Payments are counted in the month they were recorded. Each month is shown separately.',ccol:'Card',cuse:'Spent this month',cpay:'Paid this month',cowe:'Owed',ctot:'Total',billc:'Card bill',billsT:'Credit card bills (view only)',billamt:'Bill amount',billsN:'Bill amounts are not counted as income or expense. They are for reference against your card spending only.',cmon:'Month charged',older:'Earlier statements still owed: {n} (see the table by month charged)',cchg:'Charged',cpd:'Paid off',cbf:'Brought fwd',cfwd:'Card balance brought forward',cplus:'+ Card spending this month',cminus:'− Card payments this month',tall:'All',allcards:'All cards',lscash:'Cash / transfer spending',billT:'Latest bill balance / due date',billN:'Only the latest statement of each card is used. The amount you record is treated as the current balance, so older statements are not added up. Payments recorded after that entry are deducted. Set the statement day and due day of each card to calculate due dates.',cfgT:'Billing cycle settings per card',cfgS:'Statement day',cfgD:'Due day',bSt:'Statement',bDue:'Due',bAmt:'Owed',bStat:'Status',sUnb:'Not billed yet',sBill:'Billed',sOver:'Overdue',sToday:'Due today',sSoon:'In {n} days',sOk:'Pending',nextDue:'Next due',overdueT:'Overdue',noOwe:'No card balance owed',needName:'Name the card to set its billing cycle'}};
 function XL(k){return XD[lang][k]}
 function L(k){return I[lang][k]}
 function cn(c){return I[lang].cats[c]||c}
@@ -262,7 +266,7 @@ function fillSelects(){
 function setCats(){
   $('fc').innerHTML=CATS[type].map(function(c){return '<option value="'+esc(c)+'">'+esc(cn(c))+'</option>'}).join('');
   $('tE').setAttribute('aria-pressed',type==='e');
-  $('tI').setAttribute('aria-pressed',type==='i');$('tP').setAttribute('aria-pressed',type==='p');$('pbox').hidden=type!=='e';cardUI();
+  $('tI').setAttribute('aria-pressed',type==='i');$('tP').setAttribute('aria-pressed',type==='p');$('tB').setAttribute('aria-pressed',type==='b');$('pbox').hidden=type!=='e';cardUI();
 }
 function defaultDate(){
   var d=(Y===now.getFullYear()&&M===now.getMonth())?now.getDate():1;
@@ -296,7 +300,7 @@ function render(){
   $('mDn').onclick=function(){ms.scrollBy({top:rh*3,behavior:'smooth'})};
   // daily table
   var WD=I[lang].wd,dk=key(Y,M),dm={};
-  tx.forEach(function(a){if(ym(a.date)===dk&&a.type!=='p'){var d=+a.date.slice(8);dm[d]=dm[d]||{i:0,e:0};dm[d][a.type]+=a.amt;}});
+  tx.forEach(function(a){if(ym(a.date)===dk&&a.type!=='p'&&a.type!=='b'){var d=+a.date.slice(8);dm[d]=dm[d]||{i:0,e:0};dm[d][a.type]+=a.amt;}});
   var dl=Object.keys(dm).map(Number).sort(function(a,b){return a-b});
   $('dtab').innerHTML='<div class="mh"><h2>'+L('daily')+' '+monY()+'</h2>'+(dl.length>7?arrows('d'):'')+'</div>'+(dl.length?'<div class="wrap mscroll" id="dscroll"><table class="tb"><thead><tr><th>'+L('date')+'</th><th>'+L('inc')+'</th><th>'+L('exp')+'</th><th>'+L('net')+'</th></tr></thead><tbody>'+
     dl.map(function(d){var x=dm[d],n=x.i-x.e;
@@ -317,8 +321,8 @@ function render(){
   if(!items.length)h+='<p class="empty">'+(lf==='all'?L('empty'):L('nodata'))+'</p>';
   items.forEach(function(a){
     if(a.date!==last){last=a.date;h+='<div class="day">'+dayTxt(+a.date.slice(8),+a.date.slice(5,7)-1)+'</div>';}
-    h+='<div class="item" tabindex="0" data-id="'+a.id+'"><div class="acts"><button type="button" class="ed" data-id="'+a.id+'">'+XL('edit')+'</button><button type="button" class="del" data-id="'+a.id+'">'+L('del')+'</button></div><div class="row"><div class="m"><b>'+esc(cn(a.cat))+((a.pay==='card'||a.type==='p')?' <i class="tag">'+esc(a.card||XL('card'))+'</i>':'')+'</b>'+(a.note?'<span>'+esc(a.note)+'</span>':'')+(a.cur&&a.cur!=='THB'?'<span>'+a.cur+' '+money(a.orig)+' × '+a.rate+'</span>':'')+'</div>'+
-      '<span class="amt '+a.type+'">'+(a.type==='i'?'+':'−')+'฿'+money(a.amt)+'</span>'+
+    h+='<div class="item" tabindex="0" data-id="'+a.id+'"><div class="acts"><button type="button" class="ed" data-id="'+a.id+'">'+XL('edit')+'</button><button type="button" class="del" data-id="'+a.id+'">'+L('del')+'</button></div><div class="row"><div class="m"><b>'+esc(cn(a.cat))+((a.pay==='card'||a.type==='p'||a.type==='b')?' <i class="tag">'+esc(a.card||XL('card'))+'</i>':'')+'</b>'+(a.note?'<span>'+esc(a.note)+'</span>':'')+(a.cur&&a.cur!=='THB'?'<span>'+a.cur+' '+money(a.orig)+' × '+a.rate+'</span>':'')+'</div>'+
+      '<span class="amt '+a.type+'">'+(a.type==='i'?'+':a.type==='b'?'':'−')+'฿'+money(a.amt)+'</span>'+
       '</div></div>';
   });
   $('list').innerHTML=h+'</div>';
@@ -331,7 +335,7 @@ $('selM').onchange=function(){go(Y,+this.value)};
 $('selY').onchange=function(){go(+this.value,M)};
 $('chart').onclick=function(e){var b=e.target.closest('.col');if(b)go(Y,+b.dataset.m)};
 $('tE').onclick=function(){type='e';setCats()};
-$('tI').onclick=function(){type='i';setCats()};$('tP').onclick=function(){type='p';setCats()};
+$('tI').onclick=function(){type='i';setCats()};$('tP').onclick=function(){type='p';setCats()};$('tB').onclick=function(){type='b';setCats()};
 $('f').onsubmit=function(e){
   e.preventDefault();
   var amt=parseFloat($('fa').value);
@@ -395,12 +399,17 @@ function metaTheme(){var m=document.querySelector('meta[name=theme-color]');if(m
 function setTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem(TK,t)}catch(e){}metaTheme();themeIcon()}
 $('theme').onclick=function(){setTheme(curTheme()==='dark'?'light':'dark')};
 var editId=null,sw=null,lastSw=0,SW=152;
+function billsHtml(b){
+  if(!b.length)return '';
+  var rows=b.map(function(t){return '<tr><td>'+esc(t.card||XL('card0'))+'</td><td>'+dayTxt(+t.date.slice(8),+t.date.slice(5,7)-1)+'</td><td><b>'+money(t.amt)+'</b></td></tr>'}).join('');
+  return '<h2>'+XL('billsT')+'</h2><div class="wrap"><table class="tb"><thead><tr><th>'+XL('ccol')+'</th><th>'+L('date')+'</th><th>'+XL('billamt')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div><p class="rm">'+XL('billsN')+'</p>';
+}
 function yn(y){return lang==='th'?+y+543:+y}
 function yr(y){return lang==='th'?'พ.ศ. '+yn(y):''+y}
 var lf='all',lc='*';
 function listFilter(a){
   if(lf==='all')return true;
-  var isC=(a.type==='e'&&a.pay==='card')||a.type==='p';
+  var isC=(a.type==='e'&&a.pay==='card')||a.type==='p'||a.type==='b';
   if(lf==='cash')return !isC;
   if(!isC)return false;
   return lc==='*'||(a.card||'')===lc;
@@ -430,7 +439,7 @@ var cards=[];
 try{cards=JSON.parse(localStorage.getItem('thai-ledger-cards')||'[]')}catch(e){cards=[]}
 function addCard(n){if(cards.indexOf(n)<0){cards.push(n);try{localStorage.setItem('thai-ledger-cards',JSON.stringify(cards))}catch(e){}}}
 function cardNames(){var s={};cards.forEach(function(n){s[n]=1});tx.forEach(function(t){if(t.card)s[t.card]=1});return Object.keys(s).sort()}
-function cardUI(){$('cbox').hidden=!(type==='p'||(type==='e'&&$('fp').value==='card'))}
+function cardUI(){$('cbox').hidden=!(type==='p'||type==='b'||(type==='e'&&$('fp').value==='card'))}
 function fillCards(v){
   var blank=tx.some(function(t){return (t.type==='p'||(t.type==='e'&&t.pay==='card'))&&!t.card});
   var o=[];if(blank)o.push('<option value="">'+esc(XL('card0'))+'</option>');
@@ -451,7 +460,8 @@ function renderCards(){
     if(t.type==='e')o.chg[tk]=(o.chg[tk]||0)+t.amt;else o.pm[tk]=(o.pm[tk]||0)+t.amt;
   });
   var names=Object.keys(by).sort();
-  if(!any&&!names.length){box.innerHTML='';box.hidden=true;return}
+  var bills=tx.filter(function(t){return t.type==='b'&&ym(t.date)===asOf}).sort(function(a,b){return a.date<b.date?-1:1});
+  if(!any&&!names.length&&!bills.length){box.innerHTML='';box.hidden=true;return}
   box.hidden=false;
   var blocks='';
   names.forEach(function(n){
@@ -464,7 +474,7 @@ function renderCards(){
     blocks+='<div class="bh"><b>'+esc(n||XL('card0'))+'</b></div><div class="wrap"><table class="tb"><thead><tr><th>'+XL('cmon')+'</th><th>'+XL('cchg')+'</th><th>'+XL('cpd')+'</th><th>'+XL('cowe')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   });
   if(!blocks)blocks='<p class="empty">'+XL('noOwe')+'</p>';
-  box.innerHTML='<h2>'+XL('cardsT')+'</h2>'+blocks+'<p class="rm">'+XL('cardsN')+'</p>';
+  box.innerHTML=billsHtml(bills)+(any||names.length?'<h2>'+XL('cardsT')+'</h2>'+blocks+'<p class="rm">'+XL('cardsN')+'</p>':'');
 }
 function sm(n){return (n<0?'−':'')+'฿'+money(Math.abs(n))}
 function cardStats(y,m){
@@ -540,7 +550,7 @@ function applyLang(){
   $('prev').setAttribute('aria-label',L('prev'));$('next').setAttribute('aria-label',L('next'));
   $('selM').setAttribute('aria-label',L('mon'));$('selY').setAttribute('aria-label',L('yr'));
   formMode();
-  $('tE').textContent=L('exp');$('tI').textContent=L('inc');$('tP').textContent=XL('payc');
+  $('tE').textContent=L('exp');$('tI').textContent=L('inc');$('tP').textContent=XL('payc');$('tB').textContent=XL('billc');
   document.querySelector('label[for=fp]').textContent=XL('payby');$('fp').options[0].textContent=XL('cash');$('fp').options[1].textContent=XL('card');
   document.querySelector('label[for=fk]').textContent=XL('whichcard');$('fkn').placeholder=XL('newcard');fillCards($('fk').value);
   document.querySelector('label[for=fd]').textContent=L('date');
